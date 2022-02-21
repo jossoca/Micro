@@ -15,6 +15,10 @@ pulse = 1/500
 path = '/home/pi/Documents/Database/'
 ms = [1, 1, 1]
 xyz = array([0, 0, 0])
+xy = array([186, 74])
+
+screen = None
+xyz_ini = None
 
 
 #PINS DEFINITION
@@ -212,25 +216,27 @@ def capture():
 
 def tracker():
     
-    global xy, xyz, xyz_ini, fov, screen
-     
-    xy = array([186, 74])
+    global xy, xyz, xyz_ini, screen
+    
     xyz_ini = copy.copy(xyz)[[0,1]]
     
     screen = pygame.display.set_mode((375, 150))
-    fov = pygame.draw.rect(screen, (255, 0, 0), (xy[0], xy[1], 3, 2))
+    pygame.draw.rect(screen, (255, 0, 0), (xy[0], xy[1], 3, 2))
     pygame.display.update()
     return()
 
- t
+
 def tracker_update():
     
     global xy, xyz, xyz_ini
-    
-    xy_update = xy + floor((xyz[[0,1]] - xyz_ini)/5.3333)
-    screen.fill((0, 0, 0))
-    fov = pygame.draw.rect(screen, (255, 0, 0), (xy_update[0], xy_update[1], 3, 2))
-    pygame.display.update()
+   
+    try:
+        xy_update = xy + floor((xyz[[0,1]] - xyz_ini)/5.3333)
+        screen.fill((0, 0, 0))
+        pygame.draw.rect(screen, (255, 0, 0), (xy_update[0], xy_update[1], 3, 2))
+        pygame.display.update()
+    except:
+        pass
     return()
 
 
@@ -272,7 +278,8 @@ def on_press(key):
         lights_on_off()
     elif key == keyboard.KeyCode.from_char('t'):
         tracker()
-        
+
+
 def on_release(key):
     if key == keyboard.KeyCode.from_char('x'):
         micro_steps_off()
