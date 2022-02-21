@@ -16,6 +16,7 @@ path = '/home/pi/Documents/Database/'
 ms = [1, 1, 1]
 xyz = array([0, 0, 0])
 xy = array([186, 74])
+start_stop = 0
 
 screen = None
 xyz_ini = None
@@ -43,7 +44,7 @@ GPIO.setmode(GPIO.BCM)
 camera = PiCamera()
 time.sleep(1)
 camera.resolution = (4056, 3040)
-camera.start_preview(fullscreen=False, window=(420,100,1014,760))
+camera.start_preview(fullscreen=False, window=(132,195,760,570))
 
 GPIO.setup(led, GPIO.OUT)
 
@@ -59,7 +60,7 @@ GPIO.setup(ms2, GPIO.OUT)
 GPIO.setup(ms3, GPIO.OUT)
 
 pygame.init()
-os.environ['SDL_VIDEO_WINDOW_POS']='%i,%i' % (15,150)
+os.environ['SDL_VIDEO_WINDOW_POS']='%i,%i' % (325,5)
 
 
 #FUNCTIONS
@@ -97,7 +98,13 @@ def micro_steps_off():
           
 
 def micro_step():
+    
+    GPIO.output(enable_motX, 1)
+    GPIO.output(enable_motY, 1)
+    GPIO.output(enable_motZ, 0)
+    
     micro_steps_on()
+    
     sleep(pulse)
     GPIO.output(step_gpio, 1)
     sleep(pulse)
@@ -206,11 +213,44 @@ def photos_numbering(path_):
 
 def capture():
     if len(os.listdir(path)) > 0:
-        count = max(photos_numbering())
+        count = max(photos_numbering(path))
         count += 1
         camera.capture(path + 'img' + str(count) +'.jpg')
     else:
         camera.capture(path + 'img1.jpg')
+    return()
+
+
+def vid_capture():
+    
+    global start_stop, camera
+    
+    if start_stop == 0:
+        
+        camera.stop_preview()
+        camera.resolution = (1920, 1080)
+        sleep(1)
+        camera.start_preview(fullscreen=False, window=(132,195,760,570))
+        
+        start_stop = 1
+        
+        if len(os.listdir(path + "../Videos/")) > 0:
+            count = max(photos_numbering(path + "../Videos/"))
+            count += 1
+            camera.start_recording(path + "../Videos/" + 'vid' + str(count) +'.h264')
+        else:
+            camera.start_recording(path + "../Videos/" + 'vid1.h264')
+   
+    elif start_stop == 1:
+        
+        camera.stop_recording()
+        
+        camera.stop_preview()
+        camera.resolution = (4056, 3040)
+        camera.start_preview(fullscreen=False, window=(132,195,760,570))
+
+        start_stop =0
+        
     return()
 
 
@@ -278,6 +318,9 @@ def on_press(key):
         lights_on_off()
     elif key == keyboard.KeyCode.from_char('t'):
         tracker()
+    elif key == keyboard.KeyCode.from_char('v'):
+        
+        vid_capture()
 
 
 def on_release(key):
