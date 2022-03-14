@@ -10,7 +10,9 @@ import pandas as pd
 
 path = "/home/jose/Desktop/train/cropped/"
 
-img = cv2.imread(path + "images/" + 'img5_jpg.rf.9e053ded822f0956cb61278c34516561_1.jpg', cv2.IMREAD_UNCHANGED)
+filename = "img11_jpg.rf.36a47d05738bea27de8c687aebcfd47b_6"
+
+img = cv2.imread(path + "images/" + filename + '.jpg', cv2.IMREAD_UNCHANGED)
 height, width, channels = img.shape
 scale_percent = 50 # percent of original size
 width = int(img.shape[1] * scale_percent / 100)
@@ -23,7 +25,7 @@ resized = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
 # print('Resized Dimensions : ',resized.shape)
 
 
-txt = pd.read_csv(path + "labels/" + "img5_jpg.rf.9e053ded822f0956cb61278c34516561_1.txt", sep=" ", header=None)
+txt = pd.read_csv(path + "labels/" + filename + '.txt', sep=" ", header=None)
 
 
 for i in range(len(txt)):

@@ -70,7 +70,6 @@ def crop_labels(crops_list_temp):
         
         temp_labels = []
         center = (array(center)/0.45).astype(int)
-        print(center, type(center))
         
         for k in range(len(original_labels)):
             
@@ -94,6 +93,23 @@ def crop_labels(crops_list_temp):
             temp_labels["Y_center"] = (temp_labels["Y_center"]-(center[1]-500))/1000
             temp_labels["Width"] = temp_labels["Width"]/1000
             temp_labels["Height"] = temp_labels["Height"]/1000
+                       
+            index = temp_labels.loc[temp_labels.X_center + temp_labels.Width/2 > 1].index
+            temp_labels.loc[index, "Width"] = 1 + temp_labels.Width/2 - temp_labels.X_center
+            temp_labels.loc[index, "X_center"] = 1 - temp_labels.Width/2
+            
+            index = temp_labels.loc[temp_labels.X_center - temp_labels.Width/2 < 0].index
+            temp_labels.loc[index, "Width"] = temp_labels.Width - (temp_labels.X_center - temp_labels.Width/2).abs()
+            temp_labels.loc[index, "X_center"] = temp_labels.Width/2
+            
+            index = temp_labels.loc[temp_labels.Y_center - temp_labels.Height/2 < 0].index
+            temp_labels.loc[index, "Height"] = temp_labels.Height - (temp_labels.Y_center - temp_labels.Height/2).abs()
+            temp_labels.loc[index, "Y_center"] = temp_labels.Height/2
+            
+            index = temp_labels.loc[temp_labels.Y_center + temp_labels.Height/2 > 1].index
+            temp_labels.loc[index, "Height"] = 1 + temp_labels.Height/2 - temp_labels.Y_center
+            temp_labels.loc[index, "Y_center"] = 1 - temp_labels.Height/2
+                        
             temp_labels.to_csv(path + "/cropped/labels/" + labels[i][:-4] + "_" + str(l) + ".txt", index=False, header=False, sep=' ')
             l += 1
         except:
@@ -112,6 +128,7 @@ def crop_fnc(pos):
     img = Image.open(path + "images/" + images[i])
     box = (int(pos[0]-500), int(pos[1]-500), int(pos[0]+500), int(pos[1]+500))
     
+    
     img.crop(box).save(path + "/cropped/images/" + images[i][:-4] + "_" + str(j) + ".jpg")
     
     return()
@@ -124,6 +141,7 @@ def mouse_LC(pos):
     display_surface.blit(image, (0, 0))
     pygame.draw.rect(display_surface, color_blue, pygame.Rect(pos[0] - crop_xy/2, pos[1] - crop_xy/2, crop_xy, crop_xy),  3)
     pygame.display.update()
+    
     return()
     
 
